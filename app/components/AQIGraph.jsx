@@ -8,7 +8,9 @@ import {
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { useLanguage } from "../contexts/LanguageContext";
 import { getAllAQILevels, getAQILevel } from "../utils/aqiUtils";
+import { getTranslation } from "../utils/translations";
 
 // Use centralized AQI levels
 const aqiLevels = getAllAQILevels().map((level) => ({
@@ -24,6 +26,7 @@ const screenWidth = Dimensions.get("window").width;
 
 const AQIGraph = ({ data, isLoading, pollutant }) => {
   const [tooltip, setTooltip] = useState(null);
+  const { selectedLanguage } = useLanguage();
 
   const chartConfigAndData = useMemo(() => {
     if (!data || data.length === 0) {
@@ -134,8 +137,12 @@ const AQIGraph = ({ data, isLoading, pollutant }) => {
       <View style={styles.headerContainer}>
         <View style={styles.headerAccent} />
         <View style={styles.headerContent}>
-          <Text style={styles.graphHeader}>AQI Trend of {pollutant}</Text>
-          <Text style={styles.graphSubtitle}>Air Quality Index Forecast</Text>
+          <Text style={styles.graphHeader}>
+            {getTranslation("aqiTrendOf", selectedLanguage)} {pollutant}
+          </Text>
+          <Text style={styles.graphSubtitle}>
+            {getTranslation("airQualityIndexForecast", selectedLanguage)}
+          </Text>
         </View>
       </View>
       <LineChart

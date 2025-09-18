@@ -3,6 +3,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import AQIGraph from "../components/AQIGraph";
 import GaugeMeter from "../components/AQIMeter";
+import TimestampDisplay from "../components/TimestampDisplay";
 import { useLanguage } from "../contexts/LanguageContext";
 import { getTranslation } from "../utils/translations";
 const Pollutant = ({ pollutant, data }) => {
@@ -15,6 +16,22 @@ const Pollutant = ({ pollutant, data }) => {
     no2: getTranslation("no2", selectedLanguage),
     so2: getTranslation("so2", selectedLanguage),
     co: getTranslation("co", selectedLanguage),
+  };
+
+  const pollutantFullNames = {
+    pm2_5:
+      selectedLanguage === "hi"
+        ? "पार्टिकुलेट मैटर 2.5"
+        : "Particulate Matter 2.5",
+    pm10:
+      selectedLanguage === "hi"
+        ? "पार्टिकुलेट मैटर 10"
+        : "Particulate Matter 10",
+    o3: selectedLanguage === "hi" ? "ओज़ोन" : "Ozone",
+    no2:
+      selectedLanguage === "hi" ? "नाइट्रोजन डाइऑक्साइड" : "Nitrogen Dioxide",
+    so2: selectedLanguage === "hi" ? "सल्फर डाइऑक्साइड" : "Sulphur Dioxide",
+    co: selectedLanguage === "hi" ? "कार्बन मोनोऑक्साइड" : "Carbon Monoxide",
   };
 
   // Pollutant ranges with air quality categories
@@ -139,6 +156,7 @@ const Pollutant = ({ pollutant, data }) => {
   const pollutantInfo = getPollutantInfo(pollutant);
   const pollutantRangesData = getPollutantRanges(pollutant);
   const displayPollutantName = pollutantNames[pollutant] || pollutant;
+  const displayPollutantFullName = pollutantFullNames[pollutant] || pollutant;
   return (
     <View style={styles.container}>
       {/* Header with gradient background matching Navbar style */}
@@ -148,7 +166,7 @@ const Pollutant = ({ pollutant, data }) => {
         end={{ x: 1, y: 1 }}
         style={styles.headerGradient}
       >
-        <Text style={styles.pollutantTitle}>{displayPollutantName}</Text>
+        <Text style={styles.pollutantTitle}>{displayPollutantFullName}</Text>
       </LinearGradient>
 
       <View style={styles.sideBySideContainer}>
@@ -222,7 +240,15 @@ const Pollutant = ({ pollutant, data }) => {
         style={styles.infoContainer}
       >
         <Text style={styles.infoTitle}>
-          {getTranslation("about", selectedLanguage)} {displayPollutantName}
+          {selectedLanguage === "hi"
+            ? `${displayPollutantName} ${getTranslation(
+                "about",
+                selectedLanguage
+              )}`
+            : `${getTranslation(
+                "about",
+                selectedLanguage
+              )} ${displayPollutantName}`}
         </Text>
         <Text style={styles.infoText}>{pollutantInfo.description}</Text>
       </LinearGradient>
@@ -291,6 +317,9 @@ const Pollutant = ({ pollutant, data }) => {
           </View>
         </LinearGradient>
       )}
+
+      {/* Timestamp */}
+      <TimestampDisplay fetchedAt={data[0]?.fetchedAt} />
     </View>
   );
 };

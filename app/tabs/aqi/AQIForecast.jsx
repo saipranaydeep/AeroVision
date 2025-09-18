@@ -1,9 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import TimestampDisplay from "../../components/TimestampDisplay";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { getAQILevel } from "../../utils/aqiUtils";
+import { getTranslation } from "../../utils/translations";
 
 const AQIForecast = ({ data }) => {
+  const { selectedLanguage } = useLanguage();
+
   // Helper functions
   const getAverageAQI = () => {
     if (data.length === 0) return 0;
@@ -40,7 +45,9 @@ const AQIForecast = ({ data }) => {
     return (
       <View style={styles.emptyContainer}>
         <Feather name="cloud-off" size={48} color="#9CA3AF" />
-        <Text style={styles.emptyText}>No forecast data available</Text>
+        <Text style={styles.emptyText}>
+          {getTranslation("noForecastData", selectedLanguage)}
+        </Text>
       </View>
     );
   }
@@ -55,8 +62,12 @@ const AQIForecast = ({ data }) => {
               <Feather name="activity" size={20} color="#3B82F6" />
             </View>
             <View style={styles.headerText}>
-              <Text style={styles.title}>AQI Forecast</Text>
-              <Text style={styles.subtitle}>6-day air quality predictions</Text>
+              <Text style={styles.title}>
+                {getTranslation("aqiForecast", selectedLanguage)}
+              </Text>
+              <Text style={styles.subtitle}>
+                {getTranslation("sixDayPredictions", selectedLanguage)}
+              </Text>
             </View>
           </View>
         </View>
@@ -67,7 +78,9 @@ const AQIForecast = ({ data }) => {
           <View style={styles.statCard}>
             <View style={styles.statHeader}>
               <Feather name="trending-up" size={16} color="#10B981" />
-              <Text style={styles.statLabel}>6-Day Average</Text>
+              <Text style={styles.statLabel}>
+                {getTranslation("sixDayAverage", selectedLanguage)}
+              </Text>
             </View>
             <Text style={styles.statValue}>{averageAQI}</Text>
             <Text style={styles.statUnit}>AQI</Text>
@@ -77,7 +90,9 @@ const AQIForecast = ({ data }) => {
           <View style={styles.statCard}>
             <View style={styles.statHeader}>
               <Feather name="alert-triangle" size={16} color="#EF4444" />
-              <Text style={styles.statLabel}>Highest AQI</Text>
+              <Text style={styles.statLabel}>
+                {getTranslation("highestAQI", selectedLanguage)}
+              </Text>
             </View>
             <Text style={styles.statValue}>{highestAQI}</Text>
             {worstDay && (
@@ -88,7 +103,9 @@ const AQIForecast = ({ data }) => {
 
         {/* Daily Forecast Section */}
         <View style={styles.forecastSection}>
-          <Text style={styles.sectionTitle}>Daily Forecast</Text>
+          <Text style={styles.sectionTitle}>
+            {getTranslation("dailyForecast", selectedLanguage)}
+          </Text>
 
           {data.map((item, index) => {
             const qualityInfo = getQualityInfo(item.aqi);
@@ -117,8 +134,11 @@ const AQIForecast = ({ data }) => {
                       style={[styles.levelText, { color: qualityInfo.color }]}
                     >
                       {item.category === "Moderately Polluted"
-                        ? "Moderate"
-                        : item.category}
+                        ? getTranslation("moderate", selectedLanguage)
+                        : getTranslation(
+                            item.category.toLowerCase(),
+                            selectedLanguage
+                          ) || item.category}
                     </Text>
                   </View>
                 </View>
@@ -152,7 +172,9 @@ const AQIForecast = ({ data }) => {
                     <View style={styles.detailRow}>
                       <View style={styles.detailItem}>
                         <Feather name="cpu" size={12} color="#6B7280" />
-                        <Text style={styles.detailLabel}>Main Pollutant</Text>
+                        <Text style={styles.detailLabel}>
+                          {getTranslation("mainPollutant", selectedLanguage)}
+                        </Text>
                         <Text style={styles.detailValue}>
                           {item.main_pollutant}
                         </Text>
@@ -160,7 +182,9 @@ const AQIForecast = ({ data }) => {
 
                       <View style={styles.detailItem}>
                         <Feather name="thermometer" size={12} color="#6B7280" />
-                        <Text style={styles.detailLabel}>Value</Text>
+                        <Text style={styles.detailLabel}>
+                          {getTranslation("value", selectedLanguage)}
+                        </Text>
                         <Text style={styles.detailValue}>{item.value}</Text>
                       </View>
                     </View>
@@ -171,7 +195,9 @@ const AQIForecast = ({ data }) => {
                 <View style={styles.warningSection}>
                   <View style={styles.warningHeader}>
                     <Feather name="shield" size={14} color="#6B7280" />
-                    <Text style={styles.warningTitle}>Warning</Text>
+                    <Text style={styles.warningTitle}>
+                      {getTranslation("warning", selectedLanguage)}
+                    </Text>
                   </View>
                   <Text style={styles.warningText}>{item.warning}</Text>
                 </View>
@@ -192,6 +218,9 @@ const AQIForecast = ({ data }) => {
             );
           })}
         </View>
+
+        {/* Timestamp */}
+        <TimestampDisplay fetchedAt={data[0]?.fetchedAt} />
       </View>
     </ScrollView>
   );

@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import TimestampDisplay from "../../components/TimestampDisplay";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { getTranslation } from "../../utils/translations";
 
@@ -312,6 +313,9 @@ const Weather = ({ data }) => {
           })}
         </ScrollView>
       </View>
+
+      {/* Timestamp */}
+      <TimestampDisplay fetchedAt={data[0]?.fetchedAt} />
     </ScrollView>
   );
 };

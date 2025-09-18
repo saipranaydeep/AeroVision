@@ -246,6 +246,52 @@ export const getTranslatedAQIScale = (t) => {
   }));
 };
 
+/**
+ * Format timestamp for display
+ * @param {string} fetchedAt - ISO string timestamp
+ * @param {string} selectedLanguage - Language code
+ * @param {function} t - Translation function
+ * @returns {string} - Formatted timestamp string
+ */
+export const formatTimestamp = (fetchedAt, selectedLanguage, t) => {
+  if (!fetchedAt) return "";
+
+  try {
+    const date = new Date(fetchedAt);
+
+    if (selectedLanguage === "hindi") {
+      // Hindi format: DD/MM/YYYY को HH:MM पर
+      const dateStr = date.toLocaleDateString("hi-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const timeStr = date.toLocaleTimeString("hi-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${t("updatedOn")} ${dateStr} ${t("at")} ${timeStr}`;
+    } else {
+      // English format: Updated on DD/MM/YYYY at HH:MM AM/PM
+      const dateStr = date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const timeStr = date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return `${t("updatedOn")} ${dateStr} ${t("at")} ${timeStr}`;
+    }
+  } catch (error) {
+    console.error("Error formatting timestamp:", error);
+    return "";
+  }
+};
+
 export default {
   getAQILevel,
   getAQILevelByName,
@@ -257,4 +303,5 @@ export default {
   formatAQIValue,
   getAQIMeterLevels,
   getTranslatedAQIScale,
+  formatTimestamp,
 };

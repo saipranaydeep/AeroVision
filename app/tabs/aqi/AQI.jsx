@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import AQIMeter from "../../components/AQIMeter";
+import TimestampDisplay from "../../components/TimestampDisplay";
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
   getAQILevel,
@@ -11,6 +12,22 @@ import {
   getTranslatedAQIScale,
 } from "../../utils/aqiUtils";
 import { getTranslation } from "../../utils/translations";
+// Helper to calculate cigarette equivalency based on PM2.5 levels
+const calculateCigaretteEquivalency = (pm25Value) => {
+  if (!pm25Value || pm25Value <= 0) return { daily: 0, weekly: 0, monthly: 0 };
+
+  // One cigarette per day is equivalent to 22 μg/m3 of PM2.5 level
+  const cigaretteEquivalent = 22; // μg/m3
+  const dailyCigarettes =
+    Math.round((pm25Value / cigaretteEquivalent) * 10) / 10;
+
+  return {
+    daily: dailyCigarettes,
+    weekly: Math.round(dailyCigarettes * 7 * 10) / 10,
+    monthly: Math.round(dailyCigarettes * 30 * 10) / 10,
+  };
+};
+
 // Helper to get AQI info by AQI numerical value using centralized utility
 const getAQIInfo = (aqiValue) => {
   const defaultInfo = {
@@ -191,7 +208,7 @@ const AQI = ({ data = MOCK_DATA }) => {
       </View>
       {/* Health Recommendations */}
       <View style={styles.card}>
-        <SectionHeader title="Health Recommendations" />
+        <SectionHeader title={t("healthRecommendations")} />
         {recommendations.map((rec, index) => (
           <View key={index} style={styles.recommendationItem}>
             <Feather name="shield" size={18} color="#3b82f6" />
@@ -199,9 +216,122 @@ const AQI = ({ data = MOCK_DATA }) => {
           </View>
         ))}
       </View>
+
+      {/* Cigarette Equivalency */}
+      {(() => {
+        const pm25Pollutant = data.pollutants?.find(
+          (p) => p.pollutant === "pm2_5"
+        );
+        const cigaretteData = calculateCigaretteEquivalency(
+          pm25Pollutant?.value
+        );
+
+        if (pm25Pollutant && cigaretteData.daily > 0) {
+          return (
+            <View style={styles.card}>
+              <SectionHeader
+                title={t("cigaretteEquivalency") || "Cigarette Equivalency"}
+              />
+
+              <View style={styles.cigaretteContainer}>
+                <View style={styles.cigaretteHeader}>
+                  <Feather name="alert-triangle" size={20} color="#f59e0b" />
+                  <Text style={styles.cigaretteHeaderText}>
+                    {t("exposureEquivalent") || "Exposure Equivalent"}
+                  </Text>
+                </View>
+
+                <View style={styles.cigaretteCenterIcon}>
+                  <View style={styles.cigaretteMainIconContainer}>
+                    <Text style={styles.cigaretteMainIcon}>🚬</Text>
+                  </View>
+                </View>
+
+                <View style={styles.cigaretteVerticalList}>
+                  <View
+                    style={[
+                      styles.cigaretteVerticalItem,
+                      styles.cigaretteDaily,
+                    ]}
+                  >
+                    <View style={styles.cigaretteItemContent}>
+                      <Text style={styles.cigaretteValue}>
+                        {cigaretteData.daily}
+                      </Text>
+                      <Text style={styles.cigaretteLabel}>
+                        {cigaretteData.daily === 1
+                          ? t("cigarettePerDay") || "Cigarette/Day"
+                          : t("cigarettesPerDay") || "Cigarettes/Day"}
+                      </Text>
+                    </View>
+                    <Text style={styles.cigarettePeriod}>
+                      {t("daily") || "Daily"}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.cigaretteVerticalItem,
+                      styles.cigaretteWeekly,
+                    ]}
+                  >
+                    <View style={styles.cigaretteItemContent}>
+                      <Text style={styles.cigaretteValue}>
+                        {cigaretteData.weekly}
+                      </Text>
+                      <Text style={styles.cigaretteLabel}>
+                        {cigaretteData.weekly === 1
+                          ? t("cigarettePerWeek") || "Cigarette/Week"
+                          : t("cigarettesPerWeek") || "Cigarettes/Week"}
+                      </Text>
+                    </View>
+                    <Text style={styles.cigarettePeriod}>
+                      {t("weekly") || "Weekly"}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.cigaretteVerticalItem,
+                      styles.cigaretteMonthly,
+                    ]}
+                  >
+                    <View style={styles.cigaretteItemContent}>
+                      <Text style={styles.cigaretteValue}>
+                        {cigaretteData.monthly}
+                      </Text>
+                      <Text style={styles.cigaretteLabel}>
+                        {cigaretteData.monthly === 1
+                          ? t("cigarettePerMonth") || "Cigarette/Month"
+                          : t("cigarettesPerMonth") || "Cigarettes/Month"}
+                      </Text>
+                    </View>
+                    <Text style={styles.cigarettePeriod}>
+                      {t("monthly") || "Monthly"}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.disclaimerContainer}>
+                  <Feather name="info" size={14} color="#6b7280" />
+                  <Text style={styles.disclaimerText}>
+                    <Text style={styles.disclaimerTitle}>
+                      {t("disclaimer") || "Disclaimer"}:
+                    </Text>
+                    {" " +
+                      (t("cigaretteDisclaimerText") ||
+                        "This cigarette-equivalent estimate is based on the average PM2.5 concentration over the last 24 hours, assuming continuous exposure during that time.")}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        }
+        return null;
+      })()}
       {/* AQI Reference Scale */}
       <View style={styles.card}>
-        <SectionHeader title="AQI Reference Scale" />
+        <SectionHeader title={t("aqiReferenceScale")} />
         <View style={styles.scaleContainer}>
           <View style={styles.scaleValuesContainer}>
             <Text style={[styles.scaleValueText, { left: "2%" }]}>0</Text>
@@ -232,6 +362,9 @@ const AQI = ({ data = MOCK_DATA }) => {
           </View>
         </View>
       </View>
+
+      {/* Timestamp */}
+      <TimestampDisplay fetchedAt={data.fetchedAt} />
     </ScrollView>
   );
 };
@@ -334,6 +467,106 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#374151",
     lineHeight: 20,
+  },
+  cigaretteContainer: {
+    marginTop: 8,
+  },
+  cigaretteHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  cigaretteHeaderText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#f59e0b",
+    marginLeft: 8,
+  },
+  cigaretteCenterIcon: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  cigaretteMainIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  cigaretteMainIcon: {
+    fontSize: 28,
+  },
+  cigaretteVerticalList: {
+    marginBottom: 16,
+  },
+  cigaretteVerticalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  cigaretteItemContent: {
+    flex: 1,
+  },
+  cigaretteDaily: {
+    backgroundColor: "#fef3c7",
+    borderColor: "#f59e0b",
+  },
+  cigaretteWeekly: {
+    backgroundColor: "#fee2e2",
+    borderColor: "#ef4444",
+  },
+  cigaretteMonthly: {
+    backgroundColor: "#fce7f3",
+    borderColor: "#ec4899",
+  },
+  cigaretteValue: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#1f2937",
+    marginBottom: 2,
+  },
+  cigaretteLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+  },
+  cigarettePeriod: {
+    fontSize: 12,
+    color: "#6b7280",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  disclaimerContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#f9fafb",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  disclaimerText: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 11,
+    color: "#6b7280",
+    lineHeight: 16,
+  },
+  disclaimerTitle: {
+    fontWeight: "600",
+    color: "#374151",
   },
   scaleContainer: { marginTop: 8 },
   scaleValuesContainer: {

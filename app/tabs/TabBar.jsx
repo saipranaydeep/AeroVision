@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +11,15 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { getTranslation } from "../utils/translations";
 import Pollutant from "./Pollutant";
 import AQITabBar from "./aqi/AQITabBar";
+
+// Import PNG images
+const AQI_PNG = require("../../assets/images/aqi.png");
+const CO_PNG = require("../../assets/images/co.png");
+const NO2_PNG = require("../../assets/images/no2.png");
+const O3_PNG = require("../../assets/images/o3.png");
+const PM10_PNG = require("../../assets/images/pm10.png");
+const PM2_5_PNG = require("../../assets/images/pm2_5.png");
+const SO2_PNG = require("../../assets/images/so2.png");
 
 const TabBar = ({ airQualityData, weatherData }) => {
   const [activeTab, setActiveTab] = useState("AQI");
@@ -22,37 +32,37 @@ const TabBar = ({ airQualityData, weatherData }) => {
       {
         key: "AQI",
         label: t("aqi") || "AQI",
-        icon: "🌤️",
+        icon: AQI_PNG,
       },
       {
         key: "pm2_5",
         label: t("pm2_5") || "PM2.5",
-        icon: "💨",
+        icon: PM2_5_PNG,
       },
       {
         key: "pm10",
         label: t("pm10") || "PM10",
-        icon: "🌫️",
+        icon: PM10_PNG,
       },
       {
         key: "no2",
         label: t("no2") || "NO2",
-        icon: "🏭",
+        icon: NO2_PNG,
       },
       {
         key: "so2",
         label: t("so2") || "SO2",
-        icon: "🔥",
+        icon: SO2_PNG,
       },
       {
         key: "co",
         label: t("co") || "CO",
-        icon: "🚗",
+        icon: CO_PNG,
       },
       {
         key: "o3",
         label: t("o3") || "O3",
-        icon: "☀️",
+        icon: O3_PNG,
       },
     ],
     [t]
@@ -89,14 +99,15 @@ const TabBar = ({ airQualityData, weatherData }) => {
               onPress={() => setActiveTab(pollutant.key)}
               activeOpacity={0.7}
             >
-              <Text
+              <Image
+                source={pollutant.icon}
                 style={[
                   styles.tabIcon,
                   activeTab === pollutant.key && styles.activeTabIcon,
                 ]}
-              >
-                {pollutant.icon}
-              </Text>
+                resizeMode="contain"
+                fadeDuration={0}
+              />
               <Text
                 style={[
                   styles.tabLabel,
@@ -120,14 +131,37 @@ const TabBar = ({ airQualityData, weatherData }) => {
             AQIData={{
               ...airQualityData?.overall_daily_aqi?.[0],
               pollutants: airQualityData?.today_pollutants,
+              fetchedAt: airQualityData?.fetchedAt,
             }}
-            weatherData={weatherData?.forecast}
-            forecastData={airQualityData?.overall_daily_aqi}
+            weatherData={
+              weatherData?.forecast
+                ? weatherData.forecast.map((item, index) => ({
+                    ...item,
+                    fetchedAt: index === 0 ? weatherData?.fetchedAt : undefined,
+                  }))
+                : null
+            }
+            forecastData={
+              airQualityData?.overall_daily_aqi
+                ? airQualityData.overall_daily_aqi.map((item, index) => ({
+                    ...item,
+                    fetchedAt:
+                      index === 0 ? airQualityData?.fetchedAt : undefined,
+                  }))
+                : null
+            }
           />
         ) : (
           <Pollutant
             pollutant={activeTab}
-            data={airQualityData?.predictions?.[activeTab]}
+            data={
+              airQualityData?.predictions?.[activeTab]
+                ? airQualityData.predictions[activeTab].map((item) => ({
+                    ...item,
+                    fetchedAt: airQualityData?.fetchedAt,
+                  }))
+                : null
+            }
           />
         )}
       </View>
@@ -179,22 +213,24 @@ const styles = StyleSheet.create({
   tabButton: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     marginHorizontal: 5,
     borderRadius: 20,
     backgroundColor: "#f8f9ff",
-    minWidth: 70,
+    minWidth: 80,
   },
   activeTabButton: {
     backgroundColor: "#667eea",
   },
   tabIcon: {
-    fontSize: 18,
+    width: 32,
+    height: 32,
     marginBottom: 4,
   },
   activeTabIcon: {
-    color: "#fff",
+    opacity: 1,
+    transform: [{ scale: 1.1 }],
   },
   tabLabel: {
     fontSize: 12,

@@ -193,6 +193,27 @@ export default function Index() {
     setShowErrorPopup(false);
   };
 
+  const handleUseCurrentLocation = async () => {
+    try {
+      const detectedCity = await getCurrentLocation();
+      if (detectedCity && detectedCity !== t("unknownLocation")) {
+        setCity(detectedCity);
+        // Optionally show a success message
+        console.log(`Location updated to: ${detectedCity}`);
+      } else {
+        throw new Error("Could not detect current location");
+      }
+    } catch (error) {
+      console.error("Error getting current location:", error);
+      const locationError = new Error(
+        "Unable to get your current location. Please check permissions and try again."
+      );
+      locationError.code = "LOCATION_ERROR";
+      setError(locationError);
+      setShowErrorPopup(true);
+    }
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       const cacheResult = await loadCachedData(city);
@@ -225,7 +246,11 @@ export default function Index() {
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container}>
-        <Navbar city={city} setCity={setCity} />
+        <Navbar
+          city={city}
+          setCity={setCity}
+          onUseCurrentLocation={handleUseCurrentLocation}
+        />
         <BarLoader isVisible={isCityLoading} />
         <ScrollView
           style={styles.scrollView}

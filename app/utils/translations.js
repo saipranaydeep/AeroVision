@@ -11,6 +11,8 @@ export const translations = {
 
     // Search
     searchPlaceholder: "Search city or location...",
+    useCurrentLocation: "Use current location",
+    gettingLocation: "Getting location...",
 
     // Tabs
     aqi: "AQI",
@@ -143,6 +145,22 @@ export const translations = {
     hazardousAir: "Hazardous air quality.",
     stayIndoors: "Stay indoors and keep windows closed.",
 
+    // Cigarette Equivalency
+    cigaretteEquivalency: "Cigarette Equivalency",
+    exposureEquivalent: "Exposure Equivalent",
+    cigarettePerDay: "Cigarette/Day",
+    cigarettesPerDay: "Cigarettes/Day",
+    cigarettePerWeek: "Cigarette/Week",
+    cigarettesPerWeek: "Cigarettes/Week",
+    cigarettePerMonth: "Cigarette/Month",
+    cigarettesPerMonth: "Cigarettes/Month",
+    daily: "Daily",
+    weekly: "Weekly",
+    monthly: "Monthly",
+    disclaimer: "Disclaimer",
+    cigaretteDisclaimerText:
+      "This cigarette-equivalent estimate is based on the average PM2.5 concentration over the last 24 hours, assuming continuous exposure during that time.",
+
     // Legacy health recommendations (for backward compatibility)
     reduceSensitive: "Sensitive groups should reduce outdoor activities.",
     respiratoryDiscomfort:
@@ -221,12 +239,20 @@ export const translations = {
     value: "Value",
     warning: "Warning",
 
+    // AQI Graph component
+    aqiTrendOf: "AQI Trend of",
+    airQualityIndexForecast: "Air Quality Index Forecast",
+
     // Units
     ugm3: "µg/m³",
     ppb: "ppb",
     kmh: "km/h",
     mm: "mm",
     celsius: "°C",
+
+    // Timestamp
+    updatedOn: "Updated on",
+    at: "at",
   },
 
   hi: {
@@ -241,6 +267,8 @@ export const translations = {
 
     // Search
     searchPlaceholder: "शहर या स्थान खोजें...",
+    useCurrentLocation: "वर्तमान स्थान का उपयोग करें",
+    gettingLocation: "स्थान प्राप्त कर रहे हैं...",
 
     // Tabs
     aqi: "वायु गुणवत्ता सूचकांक",
@@ -374,6 +402,22 @@ export const translations = {
     hazardousAir: "खतरनाक हवा की गुणवत्ता।",
     stayIndoors: "घर के अंदर रहें और खिड़कियां बंद रखें।",
 
+    // Cigarette Equivalency
+    cigaretteEquivalency: "सिगरेट समकक्षता",
+    exposureEquivalent: "एक्सपोज़र समकक्षता",
+    cigarettePerDay: "सिगरेट/दिन",
+    cigarettesPerDay: "सिगरेट/दिन",
+    cigarettePerWeek: "सिगरेट/सप्ताह",
+    cigarettesPerWeek: "सिगरेट/सप्ताह",
+    cigarettePerMonth: "सिगरेट/महीना",
+    cigarettesPerMonth: "सिगरेट/महीना",
+    daily: "दैनिक",
+    weekly: "साप्ताहिक",
+    monthly: "मासिक",
+    disclaimer: "अस्वीकरण",
+    cigaretteDisclaimerText:
+      "यह सिगरेट-समकक्ष अनुमान पिछले 24 घंटों में औसत PM2.5 सांद्रता पर आधारित है, उस समय के दौरान निरंतर संपर्क मानते हुए।",
+
     // Legacy health recommendations (for backward compatibility)
     reduceSensitive: "संवेदनशील समूहों को बाहरी गतिविधियां कम करनी चाहिए।",
     respiratoryDiscomfort: "सांस की समस्या वाले लोगों को परेशानी हो सकती है।",
@@ -457,12 +501,20 @@ export const translations = {
     value: "मान",
     warning: "चेतावनी",
 
+    // AQI Graph component
+    aqiTrendOf: "AQI ट्रेंड",
+    airQualityIndexForecast: "वायु गुणवत्ता सूचकांक पूर्वानुमान",
+
     // Units
     ugm3: "µg/m³",
     ppb: "ppb",
     kmh: "km/h",
     mm: "mm",
     celsius: "°C",
+
+    // Timestamp
+    updatedOn: "अपडेट किया गया",
+    at: "को",
   },
 };
 

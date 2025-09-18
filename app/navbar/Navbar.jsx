@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
@@ -28,11 +29,12 @@ const CITY_SUGGESTIONS = [
   "Rewa",
 ];
 
-const Navbar = ({ city, setCity }) => {
+const Navbar = ({ city, setCity, onUseCurrentLocation }) => {
   const [searchCity, setSearchCity] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
   const { selectedLanguage } = useLanguage();
 
   const t = useCallback(
@@ -49,6 +51,14 @@ const Navbar = ({ city, setCity }) => {
     () => t("searchPlaceholder") || "Search city...",
     [t]
   );
+  const useCurrentLocationText = useMemo(
+    () => t("useCurrentLocation") || "Use current location",
+    [t]
+  );
+  const gettingLocationText = useMemo(
+    () => t("gettingLocation") || "Getting location...",
+    [t]
+  );
 
   const currentCityLabel = useMemo(() => t("currentCity") || "Current", [t]);
   const translatedCity = useMemo(
@@ -58,17 +68,35 @@ const Navbar = ({ city, setCity }) => {
 
   // Filter suggestions based on search input
   const filteredSuggestions = useMemo(() => {
+    const suggestions = [];
+
+    // Always show "Use current location" option as the first item
+    suggestions.push({
+      type: "current-location",
+      text: useCurrentLocationText,
+    });
+
+    // Filter city suggestions based on search input
     if (!searchCity.trim()) {
-      return CITY_SUGGESTIONS;
+      suggestions.push(
+        ...CITY_SUGGESTIONS.map((city) => ({ type: "city", text: city }))
+      );
+    } else {
+      const filtered = CITY_SUGGESTIONS.filter((suggestion) =>
+        suggestion.toLowerCase().includes(searchCity.toLowerCase())
+      );
+      suggestions.push(
+        ...filtered.map((city) => ({ type: "city", text: city }))
+      );
     }
-    return CITY_SUGGESTIONS.filter((suggestion) =>
-      suggestion.toLowerCase().includes(searchCity.toLowerCase())
-    );
-  }, [searchCity]);
+
+    return suggestions;
+  }, [searchCity, useCurrentLocationText]);
 
   const handleSearch = useCallback(() => {
     const trimmedCity = searchCity.trim();
     if (trimmedCity) {
+      Keyboard.dismiss(); // Dismiss keyboard
       setCity(trimmedCity);
       setSearchCity("");
       setShowSuggestions(false);
@@ -78,6 +106,7 @@ const Navbar = ({ city, setCity }) => {
   const handleSuggestionPress = useCallback(
     (suggestion) => {
       console.log("Suggestion pressed:", suggestion);
+      Keyboard.dismiss(); // Dismiss keyboard
       setCity(suggestion);
       setSearchCity("");
       setShowSuggestions(false);
@@ -85,6 +114,22 @@ const Navbar = ({ city, setCity }) => {
     },
     [setCity]
   );
+
+  const handleCurrentLocationPress = useCallback(async () => {
+    if (onUseCurrentLocation) {
+      Keyboard.dismiss(); // Dismiss keyboard
+      setIsLocationLoading(true);
+      setShowSuggestions(false);
+      setIsSearchFocused(false);
+      try {
+        await onUseCurrentLocation();
+      } catch (error) {
+        console.error("Error getting current location:", error);
+      } finally {
+        setIsLocationLoading(false);
+      }
+    }
+  }, [onUseCurrentLocation]);
 
   const clearSearch = useCallback(() => {
     setSearchCity("");
@@ -180,7 +225,7 @@ const Navbar = ({ city, setCity }) => {
           <View style={styles.suggestionsContainer}>
             <FlatList
               data={filteredSuggestions}
-              keyExtractor={(item) => item}
+              keyExtractor={(item, index) => `${item.type}-${index}`}
               showsVerticalScrollIndicator={true}
               style={styles.suggestionsList}
               keyboardShouldPersistTaps="handled" // Ensure taps work while keyboard is open
@@ -190,21 +235,54 @@ const Navbar = ({ city, setCity }) => {
                 <TouchableOpacity
                   style={[
                     styles.suggestionItem,
+                    item.type === "current-location" &&
+                      styles.currentLocationItem,
                     index === filteredSuggestions.length - 1 &&
                       styles.lastSuggestionItem,
                   ]}
-                  onPress={() => handleSuggestionPress(item)}
+                  onPress={() =>
+                    item.type === "current-location"
+                      ? handleCurrentLocationPress()
+                      : handleSuggestionPress(item.text)
+                  }
                   activeOpacity={0.7}
+                  disabled={
+                    item.type === "current-location" && isLocationLoading
+                  }
                 >
                   <Feather
-                    name="map-pin"
+                    name={
+                      item.type === "current-location"
+                        ? "navigation"
+                        : "map-pin"
+                    }
                     size={14}
-                    color="#667eea"
+                    color={
+                      item.type === "current-location" ? "#28a745" : "#667eea"
+                    }
                     style={styles.suggestionIcon}
                   />
-                  <Text style={styles.suggestionText}>
-                    {translateCity(item) || item}
+                  <Text
+                    style={[
+                      styles.suggestionText,
+                      item.type === "current-location" &&
+                        styles.currentLocationText,
+                    ]}
+                  >
+                    {item.type === "current-location"
+                      ? isLocationLoading
+                        ? gettingLocationText
+                        : item.text
+                      : translateCity(item.text) || item.text}
                   </Text>
+                  {item.type === "current-location" && isLocationLoading && (
+                    <Feather
+                      name="loader"
+                      size={14}
+                      color="#28a745"
+                      style={styles.loadingIcon}
+                    />
+                  )}
                 </TouchableOpacity>
               )}
             />
@@ -370,6 +448,17 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#667eea",
     flex: 1,
+  },
+  currentLocationItem: {
+    backgroundColor: "rgba(40, 167, 69, 0.05)",
+    borderBottomColor: "rgba(40, 167, 69, 0.2)",
+  },
+  currentLocationText: {
+    color: "#28a745",
+    fontWeight: "600",
+  },
+  loadingIcon: {
+    marginLeft: 8,
   },
   cityContainer: {
     flexDirection: "row",
