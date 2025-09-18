@@ -10,14 +10,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchAirQualityData, weatherDetails } from "./api/API";
+import BarLoader from "./components/BarLoader";
+import ErrorPopup from "./components/ErrorPopup";
 import { useLanguage } from "./contexts/LanguageContext";
+import { useLoading } from "./contexts/LoadingContext";
 import Navbar from "./navbar/Navbar";
-import { colors, spacing } from "./styles/theme";
 import TabBar from "./tabs/TabBar";
 import { getTranslation } from "./utils/translations";
 
 export default function Index() {
   const { selectedLanguage } = useLanguage();
+  const { isCityLoading, setCityLoading } = useLoading();
   const t = (key) => getTranslation(key, selectedLanguage);
   const [city, setCity] = useState("Indore");
   const [airQualityData, setAirQualityData] = useState(null);
@@ -25,6 +28,7 @@ export default function Index() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [locationPermission, setLocationPermission] = useState(null);
 
   const getCacheKey = (cityName, dataType) => `${dataType}_${cityName}`;
@@ -78,11 +82,12 @@ export default function Index() {
       return detectedCity;
     } catch (error) {
       console.error("Error getting current location:", error);
-      Alert.alert(
-        "Location Error",
-        "Unable to get your current location. Using default city.",
-        [{ text: "OK", style: "default" }]
+      const locationError = new Error(
+        "Unable to get your current location. Using default city."
       );
+      locationError.code = "LOCATION_ERROR";
+      setError(locationError);
+      setShowErrorPopup(true);
       return null;
     }
   };
@@ -148,6 +153,7 @@ export default function Index() {
         setRefreshing(true);
       } else if (showLoading) {
         setLoading(true);
+        setCityLoading(true); // Start city loading
       }
       setError(null);
 
@@ -162,15 +168,29 @@ export default function Index() {
       await cacheData(cityName, airData, weatherInfo);
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(err.message || "Failed to fetch data");
+      setError(err);
+      setShowErrorPopup(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setCityLoading(false); // End city loading
     }
   };
 
   const onRefresh = () => {
+    setError(null);
+    setShowErrorPopup(false);
     fetchData(city, true);
+  };
+
+  const handleErrorRetry = () => {
+    setError(null);
+    setShowErrorPopup(false);
+    fetchData(city, false, true);
+  };
+
+  const handleErrorDismiss = () => {
+    setShowErrorPopup(false);
   };
 
   useEffect(() => {
@@ -180,7 +200,10 @@ export default function Index() {
       if (!cacheResult.hasAirData && !cacheResult.hasWeatherData) {
         await fetchData(city, false, true);
       } else {
-        fetchData(city, false, false);
+        // Even with cached data, we want to show loading when city changes
+        setCityLoading(true);
+        await fetchData(city, false, false);
+        setCityLoading(false);
       }
     };
 
@@ -200,9 +223,10 @@ export default function Index() {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container}>
         <Navbar city={city} setCity={setCity} />
+        <BarLoader isVisible={isCityLoading} />
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -210,9 +234,9 @@ export default function Index() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-              progressBackgroundColor={colors.surface}
+              colors={["#4a90e2"]}
+              tintColor={"#4a90e2"}
+              progressBackgroundColor={"#f0f0f0"}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -224,6 +248,14 @@ export default function Index() {
             error={error}
           />
         </ScrollView>
+
+        {/* Error Popup */}
+        <ErrorPopup
+          visible={showErrorPopup}
+          error={error}
+          onRetry={handleErrorRetry}
+          onDismiss={handleErrorDismiss}
+        />
       </SafeAreaView>
     </>
   );
@@ -232,13 +264,13 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#f0f0f0",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: spacing.xl,
+    paddingBottom: 20,
   },
 });
