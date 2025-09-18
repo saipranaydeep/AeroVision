@@ -1,50 +1,126 @@
-# Welcome to your Expo app 👋
+# AeroVision 🌍
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+AeroVision is a comprehensive air quality monitoring mobile application built with React Native and Expo. The app provides real-time air quality data, weather information, and health recommendations to help users make informed decisions about their daily activities based on air pollution levels.
 
-## Get started
+## Features ✨
 
-1. Install dependencies
+- **Real-time Air Quality Index (AQI)** monitoring with visual meters and graphs
+- **Pollutant tracking** for PM2.5, PM10, NO₂, SO₂, CO, and O₃
+- **Location-based data** with automatic GPS detection or manual city selection
+- **Weather integration** showing current conditions alongside air quality
+- **Health recommendations** based on current AQI levels
+- **Cigarette equivalency calculator** for PM2.5 exposure
+- **Multi-language support** with internationalization
+- **AQI forecasting** for future planning
+- **Interactive charts** and visual representations
+- **Offline caching** for better performance
+
+## Tech Stack 🛠️
+
+- **Framework**: React Native with Expo
+- **Navigation**: Expo Router with file-based routing
+- **State Management**: React Context API
+- **HTTP Client**: Axios for API calls
+- **Charts**: Custom AQI graphs and meters
+- **Storage**: AsyncStorage for local data persistence
+- **Location**: Expo Location for GPS functionality
+- **UI Components**: Custom components with LinearGradient
+
+## Getting Started 🚀
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI
+- Android Studio (for Android development) or Xcode (for iOS development)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/saipranaydeep/AeroVision.git
+   cd AeroVision
+   ```
+
+2. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Start the development server**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+### Running the App
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+After starting the development server, you can run the app on:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Development build**: Scan the QR code with your device
+- **Android emulator**: Press `a` in the terminal
+- **iOS simulator**: Press `i` in the terminal (macOS only)
+- **Web browser**: Press `w` in the terminal
+- **Expo Go**: Download the Expo Go app and scan the QR code
 
-## Get a fresh project
+## Project Structure 📁
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+app/
+├── _layout.tsx          # Root layout component
+├── index.jsx            # Main app entry point
+├── api/                 # API integration
+├── components/          # Reusable UI components
+│   ├── AQIGraph.jsx     # Air quality visualization
+│   ├── AQIMeter.jsx     # AQI meter component
+│   └── ...
+├── contexts/            # React context providers
+├── navbar/              # Navigation components
+├── tabs/                # Tab-based screens
+│   ├── aqi/            # AQI-related screens
+│   └── Pollutant.jsx   # Individual pollutant views
+└── utils/               # Utility functions and translations
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Available Scripts 📝
 
-## Learn more
+- `npm start` - Start the Expo development server
+- `npm run android` - Run on Android device/emulator
+- `npm run ios` - Run on iOS device/simulator
+- `npm run web` - Run in web browser
+- `npm run lint` - Run ESLint for code quality
 
-To learn more about developing your project with Expo, look at the following resources:
+## API Integration 🔌
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+The app integrates with air quality APIs to fetch real-time data. Make sure to configure your API endpoints in the `app/api/API.jsx` file.
 
-## Join the community
+## Contributing 🤝
 
-Join our community of developers creating universal apps.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## License 📄
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support 💬
+
+If you have any questions or need help, please:
+
+- Open an issue on GitHub
+- Contact the development team
+
+## Acknowledgments 🙏
+
+- Air quality data providers
+- Expo and React Native communities
+- Contributors and testers
+
+---
+
+Made with ❤️ for cleaner air awareness
