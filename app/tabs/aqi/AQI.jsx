@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import AQIMap from "../../components/AQIMap";
 import AQIMeter from "../../components/AQIMeter";
 import TimestampDisplay from "../../components/TimestampDisplay";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -92,9 +93,26 @@ const SectionHeader = ({ title }) => (
   </View>
 );
 
-const AQI = ({ data = MOCK_DATA }) => {
+const AQI = ({ data }) => {
+  // console.log("AQI Data:", data); // Debugging line to check data prop
   const { selectedLanguage } = useLanguage();
   const t = (key) => getTranslation(key, selectedLanguage);
+
+  // Add safety check for data
+  if (!data) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <Text style={styles.loadingText}>
+          {t("loadingAqi") || "Loading AQI data..."}
+        </Text>
+      </View>
+    );
+  }
 
   const aqiScale = getTranslatedAQIScale(t);
   const aqiInfo = getAQIInfo(data.aqi); // Use numerical AQI value instead of category
@@ -168,6 +186,17 @@ const AQI = ({ data = MOCK_DATA }) => {
       >
         <AQIMeter value={data.aqi} />
       </View>
+
+      {/* AQI Stations Map */}
+      <View style={styles.card}>
+        <SectionHeader
+          title={t("aqiStationsMap") || "AQI Monitoring Stations"}
+        />
+        <View style={styles.mapContainer}>
+          <AQIMap selectedLocation={data.city} />
+        </View>
+      </View>
+
       {/* Pollutant Levels */}
       <View style={styles.card}>
         <SectionHeader title={t("pollutantLevels")} />
@@ -599,5 +628,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
     lineHeight: 14,
+  },
+  mapContainer: {
+    height: 400, // Fixed height for the map
+    marginTop: 12,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
   },
 });

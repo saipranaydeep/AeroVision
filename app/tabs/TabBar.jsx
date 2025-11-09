@@ -21,7 +21,8 @@ const PM10_PNG = require("../../assets/images/pm10.png");
 const PM2_5_PNG = require("../../assets/images/pm2_5.png");
 const SO2_PNG = require("../../assets/images/so2.png");
 
-const TabBar = ({ airQualityData, weatherData }) => {
+const TabBar = ({ airQualityData, weatherData, city }) => {
+  // console.log("TabBar airQualityData:", airQualityData); // Debugging line to check airQualityData prop
   const [activeTab, setActiveTab] = useState("AQI");
   const { selectedLanguage } = useLanguage();
 
@@ -132,6 +133,7 @@ const TabBar = ({ airQualityData, weatherData }) => {
               ...airQualityData?.overall_daily_aqi?.[0],
               pollutants: airQualityData?.today_pollutants,
               fetchedAt: airQualityData?.fetchedAt,
+              city: city, // Pass city information
             }}
             weatherData={
               weatherData?.forecast

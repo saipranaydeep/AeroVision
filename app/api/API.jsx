@@ -123,4 +123,77 @@ export const weatherDetails = async (city) => {
   }
 };
 
+export const fetchStationAQI = async (stationId) => {
+  try {
+    // Create axios instance for the station AQI API
+    const stationApi = axios.create({
+      baseURL: "https://erc.mp.gov.in",
+      timeout: 10000,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    const { data } = await stationApi.post(
+      `/EnvAlert/Wa-CityAQI?id=${stationId}`
+    );
+
+    // Validate response data
+    if (!data) {
+      const dataError = new Error("No data received for station");
+      dataError.code = "DATA_ERROR";
+      throw dataError;
+    }
+
+    return {
+      stationId,
+      ...data,
+      fetchedAt: new Date().toISOString(),
+      fetchedTime: Date.now(),
+    };
+  } catch (error) {
+    // Log error but don't throw to prevent one failed station from breaking the whole map
+    console.error(
+      `Error fetching AQI for station ${stationId}:`,
+      error.message
+    );
+    return {
+      stationId,
+      error: true,
+      errorMessage: error.message,
+      fetchedAt: new Date().toISOString(),
+    };
+  }
+};
+
+// Fetch AQI data for multiple stations
+export const fetchMultipleStationsAQI = async (stationIds) => {
+  try {
+    const promises = stationIds.map((id) => fetchStationAQI(id));
+    const results = await Promise.allSettled(promises);
+
+    return results.map((result, index) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return {
+          stationId: stationIds[index],
+          error: true,
+          errorMessage: result.reason?.message || "Unknown error",
+          fetchedAt: new Date().toISOString(),
+        };
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching multiple stations AQI:", error);
+    return stationIds.map((id) => ({
+      stationId: id,
+      error: true,
+      errorMessage: "Failed to fetch station data",
+      fetchedAt: new Date().toISOString(),
+    }));
+  }
+};
+
 export default api;

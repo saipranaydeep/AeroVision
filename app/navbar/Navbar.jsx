@@ -105,7 +105,7 @@ const Navbar = ({ city, setCity, onUseCurrentLocation }) => {
 
   const handleSuggestionPress = useCallback(
     (suggestion) => {
-      console.log("Suggestion pressed:", suggestion);
+      // console.log("Suggestion pressed:", suggestion);
       Keyboard.dismiss(); // Dismiss keyboard
       setCity(suggestion);
       setSearchCity("");

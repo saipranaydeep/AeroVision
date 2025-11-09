@@ -1,7 +1,7 @@
+import Feather from "@expo/vector-icons/Feather";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import Feather from "@expo/vector-icons/Feather";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { getTranslation } from "../../utils/translations";
 import AQI from "./AQI";
@@ -9,6 +9,7 @@ import AQIForecast from "./AQIForecast";
 import Weather from "./Weather";
 
 const AQITabBar = ({ AQIData, weatherData, forecastData }) => {
+  // console.log("AQITabBar AQIData:", AQIData); // Debugging line to check AQIData prop
   const [tab, setTab] = useState("AQI");
   const { selectedLanguage } = useLanguage();
   const t = (key) => getTranslation(key, selectedLanguage);

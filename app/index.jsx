@@ -76,9 +76,9 @@ export default function Index() {
       const { latitude, longitude } = location.coords;
       const detectedCity = await getCityFromCoordinates(latitude, longitude);
 
-      console.log(
-        `Location detected: ${detectedCity} (${latitude}, ${longitude})`
-      );
+      // console.log(
+      //   `Location detected: ${detectedCity} (${latitude}, ${longitude})`
+      // );
       return detectedCity;
     } catch (error) {
       console.error("Error getting current location:", error);
@@ -271,6 +271,7 @@ export default function Index() {
             weatherData={weatherData}
             loading={loading}
             error={error}
+            city={city}
           />
         </ScrollView>
 

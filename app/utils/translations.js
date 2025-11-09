@@ -93,6 +93,13 @@ export const translations = {
     currentCity: "Current City",
     unknownLocation: "Unknown Location",
 
+    // Map
+    aqiStationsMap: "AQI Monitoring Stations",
+    loadingMap: "Loading map...",
+    loadingStationData: "Loading station data...",
+    stationsVisible: "stations visible",
+    withData: "with data",
+
     // Loading & Errors
     loadingData: "Loading data for",
     loadingWeather: "Loading weather data...",
@@ -349,6 +356,13 @@ export const translations = {
     // Cities
     currentCity: "वर्तमान शहर",
     unknownLocation: "अज्ञात स्थान",
+
+    // Map
+    aqiStationsMap: "वायु गुणवत्ता निगरानी केंद्र",
+    loadingMap: "मैप लोड हो रहा है...",
+    loadingStationData: "स्टेशन डेटा लोड हो रहा है...",
+    stationsVisible: "स्टेशन दिखाई दे रहे हैं",
+    withData: "डेटा के साथ",
 
     // Loading & Errors
     loadingData: "डेटा लोड हो रहा है",
