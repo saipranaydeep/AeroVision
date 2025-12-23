@@ -156,6 +156,7 @@ export default function Index() {
         setCityLoading(true); // Start city loading
       }
       setError(null);
+      setShowErrorPopup(false); // Clear error popup when starting new fetch
 
       const [airData, weatherInfo] = await Promise.all([
         fetchAirQualityData(cityName),
@@ -166,6 +167,10 @@ export default function Index() {
       setWeatherData(weatherInfo);
 
       await cacheData(cityName, airData, weatherInfo);
+
+      // Ensure error is cleared on successful fetch
+      setError(null);
+      setShowErrorPopup(false);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError(err);

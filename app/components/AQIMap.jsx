@@ -93,7 +93,7 @@ const AQIMap = ({ selectedLocation }) => {
   // Fetch AQI data for visible stations
   const fetchStationsAQI = useCallback(async (stations) => {
     if (!stations || stations.length === 0) {
-    //   console.log("AQIMap: No stations to fetch AQI for");
+      //   console.log("AQIMap: No stations to fetch AQI for");
       return;
     }
 
@@ -101,10 +101,10 @@ const AQIMap = ({ selectedLocation }) => {
     setLoading(true);
     try {
       const stationIds = stations.map((station) => station.station_id);
-    //   console.log("AQIMap: Station IDs:", stationIds);
+      //   console.log("AQIMap: Station IDs:", stationIds);
 
       const aqiResults = await fetchMultipleStationsAQI(stationIds);
-    //   console.log("AQIMap: AQI results:", aqiResults);
+      //   console.log("AQIMap: AQI results:", aqiResults);
 
       // Convert array to object with station_id as key
       const aqiData = {};
@@ -112,7 +112,7 @@ const AQIMap = ({ selectedLocation }) => {
         aqiData[result.stationId] = result;
       });
 
-    //   console.log("AQIMap: Processed AQI data:", aqiData);
+      //   console.log("AQIMap: Processed AQI data:", aqiData);
       setStationsData(aqiData);
     } catch (error) {
       console.error("AQIMap: Error fetching stations AQI:", error);
@@ -317,6 +317,7 @@ const AQIMap = ({ selectedLocation }) => {
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+    <script src="https://d3js.org/d3-delaunay.v6.min.js"></script>
     
     <script>
         console.log('Initializing map...');
@@ -345,6 +346,73 @@ const AQIMap = ({ selectedLocation }) => {
             // Station markers data
             var stations = ${JSON.stringify(markersData)};
             // console.log('Adding', stations.length, 'stations to map');
+            
+            // Create Thiessen polygons (Voronoi diagram)
+            if (stations.length >= 3 && typeof d3 !== 'undefined') {
+                try {
+                    // Extract coordinates for Voronoi calculation
+                    var points = stations.map(function(station) {
+                        return [station.lng, station.lat];
+                    });
+                    
+                    // Get map bounds to clip polygons
+                    var bounds = map.getBounds();
+                    var bbox = [
+                        bounds.getWest(),
+                        bounds.getSouth(),
+                        bounds.getEast(),
+                        bounds.getNorth()
+                    ];
+                    
+                    // Expand bounds to ensure polygons cover entire visible area
+                    var expandFactor = 0.5;
+                    var widthExpand = (bbox[2] - bbox[0]) * expandFactor;
+                    var heightExpand = (bbox[3] - bbox[1]) * expandFactor;
+                    bbox = [
+                        bbox[0] - widthExpand,
+                        bbox[1] - heightExpand,
+                        bbox[2] + widthExpand,
+                        bbox[3] + heightExpand
+                    ];
+                    
+                    // Create Delaunay triangulation and Voronoi diagram
+                    var delaunay = d3.Delaunay.from(points);
+                    var voronoi = delaunay.voronoi(bbox);
+                    
+                    // Draw Voronoi polygons
+                    stations.forEach(function(station, i) {
+                        var cell = voronoi.cellPolygon(i);
+                        if (cell) {
+                            // Convert cell coordinates from [lng, lat] to [lat, lng] for Leaflet
+                            var polygonCoords = cell.map(function(coord) {
+                                return [coord[1], coord[0]];
+                            });
+                            
+                            // Create polygon with AQI-based coloring
+                            var polygon = L.polygon(polygonCoords, {
+                                color: station.color,
+                                fillColor: station.bgColor,
+                                fillOpacity: 0.3,
+                                weight: 2,
+                                opacity: 0.6
+                            }).addTo(map);
+                            
+                            // Add popup to polygon
+                            var polygonPopupContent = '<div class="popup-content">' +
+                                '<div class="popup-title">' + (station.name || 'Station') + '</div>' +
+                                '<div class="popup-location">' + (station.location || 'Unknown location') + '</div>' +
+                                '<div class="popup-aqi" style="color: ' + station.color + ';">AQI: ' + (station.aqi || 'N/A') + '</div>' +
+                                '</div>';
+                            
+                            polygon.bindPopup(polygonPopupContent);
+                        }
+                    });
+                    
+                    console.log('Thiessen polygons drawn for', stations.length, 'stations');
+                } catch (e) {
+                    console.error('Error creating Thiessen polygons:', e);
+                }
+            }
             
             // Add markers for each station
             stations.forEach(function(station, index) {
@@ -489,7 +557,7 @@ const AQIMap = ({ selectedLocation }) => {
               console.warn("WebView HTTP error: ", nativeEvent);
             }}
             onLoadEnd={(syntheticEvent) => {
-            //   console.log("WebView loaded successfully");
+              //   console.log("WebView loaded successfully");
             }}
             renderError={() => (
               <View style={styles.errorContainer}>

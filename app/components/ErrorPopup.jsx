@@ -39,8 +39,7 @@ const ErrorPopup = ({ visible, error, onRetry, onDismiss }) => {
       errorMessage.includes("timeout") ||
       errorMessage.includes("unreachable") ||
       error.code === "NETWORK_ERROR" ||
-      error.code === "ECONNABORTED" ||
-      error.response?.status === undefined
+      error.code === "ECONNABORTED"
     ) {
       return {
         title: t("networkErrorTitle"),
